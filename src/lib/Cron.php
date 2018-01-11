@@ -18,11 +18,6 @@ class Cron
     private $token = null;
 
     /**
-     * @var null Bot eid
-     */
-    private $eid = null;
-
-    /**
      * @var null Bot Output Queue
      */
     private $queue = null;
@@ -48,7 +43,6 @@ class Cron
     public function __construct($id, $queue, $region, $lambda_function_name, $credentials)
     {
         $this->id = $id;
-        $this->eid = 'a';
         $this->queue = $queue;
         $this->lambda_function_name = $lambda_function_name;
         $this->client = new LambdaClient([
@@ -111,17 +105,22 @@ class Cron
     /**
      * Report cron end with checkpoint units
      * @param int $units
+     * @param $eid
      * @param string $type
      * @return bool
      */
-    public function checkpoint($units=1, $type='write')
+    public function checkpoint($units=1, $eid=null, $type='write')
     {
+        if (!$eid) {
+            $eid = strtotime('now');
+        }
+
         $params = [
             'id' => $this->id,
             'type' => 'end',
             'token' => $this->token,
             'checkpoint' => [
-                'eid' => $this->eid,
+                'eid' => $eid,
                 'units' => $units,
                 'type' => $type,
                 'queue' => $this->queue
