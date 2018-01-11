@@ -10,7 +10,6 @@ class Loader {
 			"uploader"=>"firehose"
 		],$opts);
 	}
-	}
 
 	public function checkpoint() {
 		
