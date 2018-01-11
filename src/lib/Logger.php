@@ -2,6 +2,8 @@
 namespace Leo\lib;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 use Aws\CloudWatchLogs\Exception\CloudWatchLogsException;
+use Aws\Result;
+use Exception;
 
 /**
  * Class Logger
@@ -113,7 +115,7 @@ class Logger
      * Update config
      * @param $result
      */
-    private function updateConfig($result)
+    private function updateConfig(Result $result)
     {
         $this->config['sequenceNumber'] = $result->get("nextSequenceToken");
         file_put_contents($this->configFile, json_encode($this->config));
@@ -154,7 +156,7 @@ class Logger
 
     /**
      * Log exception
-     * @param $e
+     * @param Exception|null$e
      */
     public function logException($e)
     {
@@ -169,10 +171,9 @@ class Logger
      * @param $message
      * @param $file
      * @param $line
-     * @param null $context
      * @return bool
      */
-    public function logBuiltinError($err, $message, $file, $line, $context = null)
+    public function logBuiltinError($err, $message, $file, $line)
     {
         switch ($err) {
             case 1:
