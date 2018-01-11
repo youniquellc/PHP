@@ -34,6 +34,7 @@ class Sdk
             "version" => "latest",
             "server" => gethostname(),
             "debug" => true,
+            "credentials" => null,
             "cron_lambda_function" => null
         ], $opts);
         if ($this->config['enableLogging']) {
@@ -159,7 +160,8 @@ class Sdk
         return new lib\Cron(
             $this->id, $queue,
             $this->config['region'],
-            $this->config['cron_lambda_function']
+            $this->config['cron_lambda_function'],
+            $this->config['credentials']
         );
     }
 }

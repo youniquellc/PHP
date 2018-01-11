@@ -43,13 +43,16 @@ class Cron
      * @param $queue
      * @param $region
      * @param $lambda_function_name
+     * @param $credentials
      */
-    public function __construct($id, $queue, $region, $lambda_function_name)
+    public function __construct($id, $queue, $region, $lambda_function_name, $credentials)
     {
         $this->id = $id;
+        $this->eid = 'a';
         $this->queue = $queue;
         $this->lambda_function_name = $lambda_function_name;
         $this->client = new LambdaClient([
+            "credentials" => $credentials,
             "region"=> $region,
             "version"=>"2015-03-31",
             'http'    => [
@@ -74,6 +77,7 @@ class Cron
                 'InvocationType' => 'RequestResponse',
                 'Payload' => json_encode($params)
         ]);
+        $result = json_decode($result['Payload'], true);
 
         $this->token = $result['token'];
 
@@ -90,7 +94,7 @@ class Cron
         $params = [
             'id' => $this->id,
             'type' => 'end',
-            'status' => $status,
+            'status' => stripcslashes((string)$status),
             'token' => $this->token
         ];
 
@@ -99,6 +103,7 @@ class Cron
             'InvocationType' => 'RequestResponse',
             'Payload' => json_encode($params)
         ]);
+        $result = json_decode($result['Payload'], true);
 
         return $result['status'] === 'success';
     }
@@ -118,7 +123,8 @@ class Cron
             'checkpoint' => [
                 'eid' => $this->eid,
                 'units' => $units,
-                'type' => $type
+                'type' => $type,
+                'queue' => $this->queue
             ]
         ];
 
@@ -127,6 +133,7 @@ class Cron
             'InvocationType' => 'RequestResponse',
             'Payload' => json_encode($params)
         ]);
+        $result = json_decode($result['Payload'], true);
 
         return $result['status'] === 'success';
     }
