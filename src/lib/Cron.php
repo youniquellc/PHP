@@ -118,7 +118,7 @@ class Cron
             'type' => 'end',
             'token' => $this->token,
             'checkpoint' => [
-                'eid' => $eid,
+                'eid' => (string)$eid,
                 'units' => $units,
                 'type' => $type,
                 'queue' => $this->queue
