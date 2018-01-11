@@ -138,7 +138,7 @@ class Logger
     }
 
 
-    public function logException(Exception $e)
+    public function logException($e)
     {
         $this->log(get_class($e), $e->getMessage(), $e->getFile(), $e->getLine());
         $this->end();
