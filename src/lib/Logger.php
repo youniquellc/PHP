@@ -65,7 +65,7 @@ class Logger
         if ($this->config) {
             return $this->config;
         } else if (file_exists($this->configFile)) {
-            $config = json_decode(file_get_contents($this->configFile), JSON_OBJECT_AS_ARRAY);
+            //$config = json_decode(file_get_contents($this->configFile), JSON_OBJECT_AS_ARRAY);
             //check to see if the stream matches today's
             //if not, create a new one
             $logGroupName = "/aws/lambda/{$this->id}";
@@ -76,18 +76,16 @@ class Logger
             } catch (CloudWatchLogsException $e) {
                 //don't care about this one
             }
-            if (0) {
-                $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
-                $this->client->createLogStream([
-                    "logGroupName" => $logGroupName,
-                    "logStreamName" => $logStreamName
-                ]);
-                $config = [
-                    "logGroupName" => $logGroupName,
-                    "logStreamName" => $logStreamName,
-                    "sequenceNumber" => null
-                ];
-            }
+            $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
+            $this->client->createLogStream([
+                "logGroupName" => $logGroupName,
+                "logStreamName" => $logStreamName
+            ]);
+            $config = [
+                "logGroupName" => $logGroupName,
+                "logStreamName" => $logStreamName,
+                "sequenceNumber" => null
+            ];
         } else {
             $logGroupName = "/aws/lambda/{$this->id}";
             try {
