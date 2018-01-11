@@ -28,9 +28,10 @@ class Cron
     private $client = null;
 
     /**
-     * @var null Lambda Function name
+     * Cron Config
+     * @var null
      */
-    private $lambda_function_name = null;
+    private $config = null;
 
     /**
      * Cron constructor.
@@ -42,7 +43,7 @@ class Cron
     {
         $this->id = $id;
         $this->queue = $queue;
-        $this->lambda_function_name = $opts['cron_lambda_function'];
+        $this->config = $opts;
         $this->client = new LambdaClient([
             "credentials" => $opts['credentials'],
             "region"=> $opts['region'],
@@ -65,7 +66,7 @@ class Cron
         ];
 
         $result = $this->client->invoke([
-                'FunctionName' => $this->lambda_function_name,
+                'FunctionName' => $this->config['cron_lambda_function'],
                 'InvocationType' => 'RequestResponse',
                 'Payload' => json_encode($params)
         ]);
@@ -91,7 +92,7 @@ class Cron
         ];
 
         $result = $this->client->invoke([
-            'FunctionName' => $this->lambda_function_name,
+            'FunctionName' => $this->config['cron_lambda_function'],
             'InvocationType' => 'RequestResponse',
             'Payload' => json_encode($params)
         ]);
@@ -126,7 +127,7 @@ class Cron
         ];
 
         $result = $this->client->invoke([
-            'FunctionName' => $this->lambda_function_name,
+            'FunctionName' => $this->config['cron_lambda_function'],
             'InvocationType' => 'RequestResponse',
             'Payload' => json_encode($params)
         ]);
