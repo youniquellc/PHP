@@ -2,7 +2,6 @@
 namespace Leo\lib;
 use Aws\CloudWatchLogs\CloudWatchLogsClient;
 use Aws\CloudWatchLogs\Exception\CloudWatchLogsException;
-use Exception;
 
 /**
  * Class Logger
@@ -55,19 +54,22 @@ class Logger
         $this->addMessage("START RequestId: {$this->requestId} Version: {$this->opts['version']}");
     }
 
-
+    /**
+     * Get log stream or create
+     * @return array|mixed
+     */
     private function getLogStream()
     {
         if ($this->config) {
             return $this->config;
         } else if (file_exists($this->configFile)) {
             $config = json_decode(file_get_contents($this->configFile), JSON_OBJECT_AS_ARRAY);
-
             //check to see if the stream matches today's
             //if not, create a new one
+            $logGroupName = "/aws/lambda/{$this->id}";
             if (0) {
                 $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
-                $result = $this->client->createLogStream([
+                $this->client->createLogStream([
                     "logGroupName" => $logGroupName,
                     "logStreamName" => $logStreamName
                 ]);
@@ -80,14 +82,14 @@ class Logger
         } else {
             $logGroupName = "/aws/lambda/{$this->id}";
             try {
-                $result = $this->client->createLogGroup([
+                $this->client->createLogGroup([
                     "logGroupName" => $logGroupName
                 ]);
             } catch (CloudWatchLogsException $e) {
                 //don't care about this one
             }
             $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
-            $result = $this->client->createLogStream([
+            $this->client->createLogStream([
                 "logGroupName" => $logGroupName,
                 "logStreamName" => $logStreamName
             ]);
@@ -100,14 +102,20 @@ class Logger
         return $this->config = $config;
     }
 
+    /**
+     * Update config
+     * @param $result
+     */
     private function updateConfig($result)
     {
         $this->config['sequenceNumber'] = $result->get("nextSequenceToken");
         file_put_contents($this->configFile, json_encode($this->config));
     }
 
-
-
+    /**
+     * Add message to messages to send
+     * @param $message
+     */
     private function addMessage($message)
     {
         $this->messages[] = [
