@@ -1,0 +1,22 @@
+{
+  "name": "php-sdk",
+  "version": "1.0.0",
+  "description": "Test the php code",
+  "main": "test.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "nodemon test.js -e php"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LeoPlatform/PHP.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LeoPlatform/PHP/issues"
+  },
+  "homepage": "https://github.com/LeoPlatform/PHP#readme"
+}
