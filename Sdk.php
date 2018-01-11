@@ -12,7 +12,16 @@ namespace Leo;
  */
 class Sdk
 {
+    /**
+     * Sdk Config parameters
+     * @var array
+     */
     private $config;
+
+    /**
+     * Bot id
+     * @var
+     */
     private $id;
 
     /**
