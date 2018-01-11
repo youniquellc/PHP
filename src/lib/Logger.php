@@ -45,9 +45,9 @@ class Logger
 
         $this->getLogStream();
 
-        register_shutdown_function(array($this, "checkFatal"));
-        set_error_handler(array($this, "logBuiltinError"));
-        set_exception_handler(array($this, "logException"));
+        register_shutdown_function([$this, "checkFatal"]);
+        set_error_handler([$this, "logBuiltinError"]);
+        set_exception_handler([$this, "logException"]);
         ini_set("display_errors", "on");
         ini_set('error_reporting', -1);
 
@@ -67,6 +67,13 @@ class Logger
             //check to see if the stream matches today's
             //if not, create a new one
             $logGroupName = "/aws/lambda/{$this->id}";
+            try {
+                $this->client->createLogGroup([
+                    "logGroupName" => $logGroupName
+                ]);
+            } catch (CloudWatchLogsException $e) {
+                //don't care about this one
+            }
             if (0) {
                 $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
                 $this->client->createLogStream([
@@ -145,7 +152,10 @@ class Logger
 
     }
 
-
+    /**
+     * Log exception
+     * @param $e
+     */
     public function logException($e)
     {
         $this->log(get_class($e), $e->getMessage(), $e->getFile(), $e->getLine());
@@ -153,6 +163,15 @@ class Logger
         exit();
     }
 
+    /**
+     * Log built in error
+     * @param $err
+     * @param $message
+     * @param $file
+     * @param $line
+     * @param null $context
+     * @return bool
+     */
     public function logBuiltinError($err, $message, $file, $line, $context = null)
     {
         switch ($err) {
@@ -212,17 +231,31 @@ class Logger
         return $this->log($type, $message, $file, $line);
     }
 
+    /**
+     * Log a message
+     * @param $type
+     * @param $message
+     * @param $file
+     * @param $line
+     * @return bool
+     */
     public function log($type, $message, $file, $line)
     {
         $this->addMessage(strtoupper($type) . ": " . $message . "\n\n $file $line");
         return false;
     }
 
+    /**
+     * Destruct call on class destruct
+     */
     public function __destruct()
     {
         $this->end();
     }
 
+    /**
+     * Send events to cloud watch
+     */
     private function sendEvents()
     {
         if (count($this->messages)) {
@@ -240,6 +273,9 @@ class Logger
         $this->messages = [];
     }
 
+    /**
+     * End logging and send events
+     */
     public function end()
     {
         if ($this->requestId) {
@@ -254,6 +290,9 @@ class Logger
         $this->sendEvents();
     }
 
+    /**
+     * Check fatal error
+     */
     public function checkFatal()
     {
         $e = error_get_last();

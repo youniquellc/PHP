@@ -36,18 +36,16 @@ class Cron
      * Cron constructor.
      * @param $id
      * @param $queue
-     * @param $region
-     * @param $lambda_function_name
-     * @param $credentials
+     * @param $opts
      */
-    public function __construct($id, $queue, $region, $lambda_function_name, $credentials)
+    public function __construct($id, $queue, $opts)
     {
         $this->id = $id;
         $this->queue = $queue;
-        $this->lambda_function_name = $lambda_function_name;
+        $this->lambda_function_name = $opts['cron_lambda_function'];
         $this->client = new LambdaClient([
-            "credentials" => $credentials,
-            "region"=> $region,
+            "credentials" => $opts['credentials'],
+            "region"=> $opts['region'],
             "version"=>"2015-03-31",
             'http'    => [
                 'verify' => false

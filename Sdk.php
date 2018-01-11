@@ -165,12 +165,6 @@ class Sdk
         if (!$this->config['cron_lambda_function']) {
             throw new \Exception('You must specify a cron lambda function');
         }
-
-        return new lib\Cron(
-            $this->id, $queue,
-            $this->config['region'],
-            $this->config['cron_lambda_function'],
-            $this->config['credentials']
-        );
+        return new lib\Cron($this->id, $queue, $this->config);
     }
 }
