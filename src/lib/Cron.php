@@ -54,6 +54,11 @@ class Cron
         ]);
     }
 
+    public function __destruct()
+    {
+        $this->end();
+    }
+
     /**
      * Report cron start
      * @return bool
