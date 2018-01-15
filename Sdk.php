@@ -25,6 +25,12 @@ class Sdk
     private $id;
 
     /**
+     * Logger
+     * @var object | null
+     */
+    public $logger = null;
+
+    /**
      * Sdk constructor.
      * @param $id
      * @param $opts
@@ -47,7 +53,7 @@ class Sdk
             "cron_lambda_function" => null
         ], $opts);
         if ($this->config['enableLogging']) {
-            $this->enableLogging();
+            $this->logger = $this->enableLogging();
         }
     }
 

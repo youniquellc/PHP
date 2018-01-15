@@ -52,8 +52,13 @@ class Cron
                 'verify' => false
             ]
         ]);
+        // Auto start
+        $this->start();
     }
 
+    /**
+     * Auto end on destruct
+     */
     public function __destruct()
     {
         $this->end();
