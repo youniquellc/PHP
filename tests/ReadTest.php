@@ -1,31 +1,39 @@
 <?php
-use PHPUnit\Framework\TestCase;
+require __DIR__ . '/SdkTestCase.php';
 
-final class ReadTest extends TestCase
+/**
+ * Test reading
+ * Class ReadTest
+ */
+final class ReadTest extends SdkTestCase
 {
-    public function testLoad() {
-    	$leo = new Leo\Sdk("GTITest", [
-			"enableLogging"=>false,
-			"firehose"=>"Leo-BusToS3-KECVSTB21J92",
-			"kinesis"=>"Leo-KinesisStream-ATNV3XQO0YHV",
-			"s3"=>"leo-s3bus-1r0aubze8imm5",
-			"debug"=>true
-		]);
-		$reader = $leo->createOffloader("gti.test", [
-			"start"=>"z/"
-		]);
+    /**
+     * @var string
+     */
+    protected $test_id = 'TestReadBot';
 
-		$count = 0;
-		$checkpointCount = 0;
-		foreach($reader->events as $i=>$event) {
-			// \Leo\lib\Utils::log($event);	
-			$count++;
-			if(++$checkpointCount == 1000) {
-				$reader->checkpoint();
-				$checkpointCount=0;
-			}
-		}
-		$reader->checkpoint();
-		\Leo\lib\Utils::log($count);
+    /**
+     * Test Read
+     * @throws Exception
+     */
+    public function testRead()
+    {
+        $reader = $this->sdk->createOffloader($this->test_queue, [
+            "start" => "z/",
+            "limit" => 10
+        ]);
+
+        $count = 0;
+        $checkpointCount = 0;
+        foreach ($reader->events as $i => $event) {
+            $this->assertNotNull($event['timestamp']);
+            $count++;
+            if (++$checkpointCount == 10) {
+                $reader->checkpoint();
+                $checkpointCount = 0;
+            }
+        }
+
+        $reader->checkpoint();
     }
 }
