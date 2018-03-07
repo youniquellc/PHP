@@ -58,9 +58,9 @@ class Kinesis extends Uploader{
 			    },$batch['records'])
 			]);
 			if($retries > 0) {
-				print "\tRetrying(#{$retries}) {$cnt} records of size ({$len}) in " . (microtime(true) - $time_start) . " seconds\n";
+				//print "\tRetrying(#{$retries}) {$cnt} records of size ({$len}) in " . (microtime(true) - $time_start) . " seconds\n";
 			} else {
-				print "\tSent {$cnt} records of size ({$len}) in " . (microtime(true) - $time_start) . " seconds\n";
+				//print "\tSent {$cnt} records of size ({$len}) in " . (microtime(true) - $time_start) . " seconds\n";
 			}
 			$hasErrors = $result->get('FailedRecordCount') == 0;
 			if(!$hasErrors) {
