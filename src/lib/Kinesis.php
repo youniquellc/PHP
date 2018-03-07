@@ -47,7 +47,6 @@ class Kinesis extends Uploader{
 				$cnt += $record['cnt'];
 				$len += $record['length'];
 			}
-			var_dump($this->id);
 			$result = $this->client->putRecords([
 			    'StreamName' => $this->stream,
 			    'Records' => array_map(function($record) {
