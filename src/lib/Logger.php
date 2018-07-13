@@ -23,6 +23,9 @@ class Logger
     private $requestId;
     private $startTime;
 
+    private $requestsPerSecond = 5; // CloudWatch limits are 5 requests per second
+    private $messageLimit = 200000; // CloudWatch limits are 262144 per log event
+
     /**
      * Logger constructor.
      * @param $id
@@ -258,18 +261,42 @@ class Logger
     private function sendEvents()
     {
         if (count($this->messages)) {
-            $params = [
-                'logGroupName' => $this->config['logGroupName'],
-                'logStreamName' => $this->config['logStreamName'],
-                'logEvents' => $this->messages
-            ];
-            if ($this->config['sequenceNumber']) {
-                $params['sequenceToken'] = $this->config['sequenceNumber'];
+
+            list($messageChunkSize, $messageChunks) = $this->getMessageChunks();
+
+            foreach ($messageChunks as $messageChunk) {
+                $params = [
+                    'logGroupName' => $this->config['logGroupName'],
+                    'logStreamName' => $this->config['logStreamName'],
+                    'logEvents' => $messageChunk
+                ];
+                if ($this->config['sequenceNumber']) {
+                    $params['sequenceToken'] = $this->config['sequenceNumber'];
+                }
+                $result = $this->client->putLogEvents($params);
+                $this->updateConfig($result);
+
+                if ($messageChunkSize > $this->requestsPerSecond) {
+                    usleep(250000); // send 4 requests per second
+                }
             }
-            $result = $this->client->putLogEvents($params);
-            $this->updateConfig($result);
+
         }
         $this->messages = [];
+    }
+
+    /**
+     * chunk $this->messages to avoid hitting CloudWatch limits
+     *
+     * @return array
+     */
+    private function getMessageChunks()
+    {
+        $messagesInBytes = mb_strlen(serialize((array)$this->messages), '8bit');
+        $messagesByLimit = round(($messagesInBytes / $this->messageLimit), 0);
+        $messageChunkSize = !$messagesByLimit ? 1 : $messagesByLimit;
+        $messageChunks = array_chunk($this->messages, $messageChunkSize);
+        return [$messageChunkSize, $messageChunks];
     }
 
     /**
