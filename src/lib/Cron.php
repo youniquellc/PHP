@@ -34,6 +34,11 @@ class Cron
     private $config = null;
 
     /**
+     * If error here, the bot ends with an error
+     */
+    private $error = null;
+
+    /**
      * Cron constructor.
      * @param $id
      * @param $queue
@@ -61,7 +66,7 @@ class Cron
      */
     public function __destruct()
     {
-        $this->end();
+        $this->end($this->error ? 'error' : 'complete');
     }
 
     /**
@@ -146,4 +151,10 @@ class Cron
         return $result['status'] === 'success';
     }
 
+    /**
+     * Report cron with an error
+     */
+    public function setError($message){
+        $this->error = $message;
+    }
 }
