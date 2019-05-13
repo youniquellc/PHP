@@ -163,6 +163,11 @@ class Logger
     {
         $this->log(get_class($e), $e->getMessage(), $e->getFile(), $e->getLine());
         $this->end();
+
+        if($this->opts['parent_object'] && method_exists($this->opts['parent_object'], 'error')){
+            $this->opts['parent_object']->error($e->getMessage());
+        }
+
         exit();
     }
 
