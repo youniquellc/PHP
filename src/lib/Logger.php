@@ -248,8 +248,13 @@ class Logger
      */
     public function log($type, $message, $file, $line)
     {
-        $this->addMessage(strtoupper($type) . ": " . $message . "\n\n $file $line");
-        return false;
+        $output = strtoupper($type) . ": " . $message . "\n\n $file $line";
+        if(stripos($type, 'error') !== false || stripos($type, 'exception') !== false){
+            $this->addMessage($output);
+        }
+        else{
+            print $output;
+        }
     }
 
     /**
