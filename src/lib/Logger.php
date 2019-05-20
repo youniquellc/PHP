@@ -67,42 +67,22 @@ class Logger
     {
         if ($this->config) {
             return $this->config;
-        } else if (file_exists($this->configFile)) {
-            //$config = json_decode(file_get_contents($this->configFile), JSON_OBJECT_AS_ARRAY);
-            //check to see if the stream matches today's
-            //if not, create a new one
-            $logGroupName = "/aws/lambda/{$this->id}";
-            try {
-                $this->client->createLogGroup([
-                    "logGroupName" => $logGroupName
-                ]);
-            } catch (CloudWatchLogsException $e) {
-                //don't care about this one
-            }
-            $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
-            $this->client->createLogStream([
-                "logGroupName" => $logGroupName,
-                "logStreamName" => $logStreamName
-            ]);
-            $config = [
-                "logGroupName" => $logGroupName,
-                "logStreamName" => $logStreamName,
-                "sequenceNumber" => null
-            ];
         } else {
             $logGroupName = "/aws/lambda/{$this->id}";
+            $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
+
             try {
                 $this->client->createLogGroup([
                     "logGroupName" => $logGroupName
                 ]);
+                $this->client->createLogStream([
+                    "logGroupName" => $logGroupName,
+                    "logStreamName" => $logStreamName
+                ]);
             } catch (CloudWatchLogsException $e) {
                 //don't care about this one
             }
-            $logStreamName = date("Y/m/d/") . "[{$this->opts['version']}]/{$this->opts['server']}/" . Utils::milliseconds();
-            $this->client->createLogStream([
-                "logGroupName" => $logGroupName,
-                "logStreamName" => $logStreamName
-            ]);
+
             $config = [
                 "logGroupName" => $logGroupName,
                 "logStreamName" => $logStreamName,
