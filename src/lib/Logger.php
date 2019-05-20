@@ -75,12 +75,17 @@ class Logger
                 $this->client->createLogGroup([
                     "logGroupName" => $logGroupName
                 ]);
+            } catch (CloudWatchLogsException $e) {
+                //don't care about this one
+            }
+
+            try {
                 $this->client->createLogStream([
                     "logGroupName" => $logGroupName,
                     "logStreamName" => $logStreamName
                 ]);
             } catch (CloudWatchLogsException $e) {
-                //don't care about this one
+                //don't care about this one either
             }
 
             $config = [
