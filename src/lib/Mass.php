@@ -5,6 +5,7 @@ use Aws\S3\S3Client;
 class Mass extends Uploader{
 	private $bucket;
 	private $tempFile;
+	private $fhandle;
 	private $client;
 
 	private $id;
@@ -30,10 +31,7 @@ class Mass extends Uploader{
 		], $opts);
 
 		$this->bucket = $bucket;
-		$this->tempFile = \tempnam($this->opts['tmpdir'], 'leo');
 		$this->uploader = $uploader;
-
-		$this->fhandle = gzopen($this->tempFile, 'wb6');
 
 		$this->client = new S3Client([
 			"version"=>"2006-03-01",
@@ -44,7 +42,24 @@ class Mass extends Uploader{
 		]);
 	}
 
+    /**
+     * Initializes the gz file handler.
+     * This was in the __construct, but caused a new file to be created on every object instantiation.
+     */
+    public function initializeFileHandler()
+    {
+        $this->tempFile = tempnam($this->opts['tmpdir'], 'leo');
+        $this->fhandle  = gzopen($this->tempFile, 'wb6');
+
+    }
+
 	public function sendRecords($batch) {
+
+	    //Initialize the file handler. Was in construct, but that led to many orphan files
+	    if (empty($this->tempFile)) {
+	        $this->initializeFileHandler();
+        }
+
 		$correlation = "";
 		foreach($batch['records'] as $record) {
 			gzwrite($this->fhandle, $record['data']);
