@@ -1,6 +1,7 @@
 {
   "name": "leoplatform/php",
   "description": "SDK for Leo Innovation Platform",
+  "version": "1.0.6",
   "require": {
     "php": ">=5.6.0",
     "aws/aws-sdk-php": "^3.31"
