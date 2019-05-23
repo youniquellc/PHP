@@ -71,7 +71,7 @@ class Mass extends Uploader{
 		* @todo  check if it was a success or not
 		*/
 		fclose($handler);
-		//unlink($this->tempFile);
+		unlink($this->tempFile);
 
 		var_dump($this->tempFile);
 
